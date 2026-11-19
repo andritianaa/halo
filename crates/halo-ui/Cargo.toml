@@ -1,0 +1,20 @@
+[package]
+name = "halo-ui"
+description = "Halo design tokens, motion primitives and GPUI glue."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[features]
+default = ["gpui"]
+# Pure tokens/motion build without GPUI so `cargo test -p halo-ui --no-default-features` is fast.
+gpui = ["dep:gpui-kit", "dep:log"]
+
+[dependencies]
+gpui-kit = { workspace = true, optional = true }
+log = { workspace = true, optional = true }
+serde = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }

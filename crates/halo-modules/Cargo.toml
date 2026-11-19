@@ -1,0 +1,30 @@
+[package]
+name = "halo-modules"
+description = "Halo feature modules (M1–M19). One module per CDC feature."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+halo-core = { workspace = true }
+anyhow = { workspace = true }
+chrono = { workspace = true }
+sysinfo = { version = "0.40", default-features = false, features = ["system"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+log.workspace = true
+halo-platform = { workspace = true }
+rusqlite = { version = "0.43.0", features = ["bundled"] }
+image = { version = "0.25.10", default-features = false, features = ["png", "jpeg", "webp", "avif", "gif", "bmp"] }
+fast_image_resize = { version = "6.1.0", features = ["image"] }
+webp = "0.3.1"
+arboard = "3.7.0"
+sha2 = "0.11.1"
+chrono-tz = "0.10.4"
+rodio = { version = "0.23.0", default-features = false, features = ["playback", "symphonia-mp3", "symphonia-flac", "symphonia-wav", "symphonia-vorbis", "symphonia-ogg", "symphonia-pcm", "symphonia-isomp4", "symphonia-aac"] }
+lofty = "0.25.5"
+rand = "0.10.4"
+
+[dev-dependencies]
+tempfile = "3.27.0"

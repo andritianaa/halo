@@ -1,0 +1,8 @@
+/target
+*.pdb
+/assets/fonts/*.ttf
+/assets/fonts/*.otf
+!/assets/fonts/README.md
+/dist
+CLAUDE*
+/design/

@@ -1,0 +1,15 @@
+[package]
+name = "halo-core"
+description = "Halo core: config, module system, event bus, overlay geometry and auto-hide."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+# Deliberately free of GPUI and Win32 so it is unit-testable anywhere.
+[dependencies]
+halo-ui = { workspace = true }
+serde = { workspace = true }
+toml = { workspace = true }
+anyhow = { workspace = true }
+log = { workspace = true }

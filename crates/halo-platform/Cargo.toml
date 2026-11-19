@@ -1,0 +1,19 @@
+[package]
+name = "halo-platform"
+description = "Halo Windows abstractions (windows-rs): overlay window styles, monitors, cursor, system theme."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+halo-core = { workspace = true }
+log = { workspace = true }
+
+[target.'cfg(windows)'.dependencies]
+windows = { workspace = true }
+# `#[implement]` (COM objects such as IDropTarget) refers to `windows_core` by name.
+windows-core = "0.61"
+
+[dev-dependencies]
+env_logger = { workspace = true }

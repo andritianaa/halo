@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Halo MSI (WiX Toolset 3.14). Built by scripts/build-msi.ps1:
+    candle -arch x64 -dVersion=X.Y.Z -dBinDir=target\release -dRoot=. wix\halo.wxs
+    light  -ext WixUIExtension halo.wixobj -o halo-X.Y.Z-x64.msi
+-->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*"
+           Name="Halo"
+           Language="1033"
+           Version="$(var.Version)"
+           Manufacturer="Halo contributors"
+           UpgradeCode="7C2B3B0E-6A51-4E7E-9C0B-4C1F2A8D5E61">
+
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" Platform="x64"
+             Description="Halo — notch overlay and utility suite for Windows"
+             Comments="Open source (MIT OR Apache-2.0). 100% local, no telemetry." />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Halo is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="HaloIcon" SourceFile="$(var.Root)\assets\icons\halo.ico" />
+    <Property Id="ARPPRODUCTICON" Value="HaloIcon" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/andritianaa/halo" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="Halo">
+          <Directory Id="ThemesFolder" Name="themes" />
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder" />
+    </Directory>
+
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="HaloExe" Guid="3E9B6F2A-2C4D-4E1B-A7F0-5D8C9B1E2F31" Win64="yes">
+        <File Id="HaloExeFile" Source="$(var.BinDir)\halo.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Licenses" Guid="8A1C4D2E-5F60-4B7A-9C3D-2E1F0A9B8C72" Win64="yes">
+        <File Id="LicenseMit" Source="$(var.Root)\LICENSE-MIT" Name="LICENSE-MIT.txt" KeyPath="yes" />
+        <File Id="LicenseApache" Source="$(var.Root)\LICENSE-APACHE" Name="LICENSE-APACHE.txt" />
+      </Component>
+      <!-- WinDivert 2.2 (LGPL-3.0): only loaded when the user starts the network limiter. -->
+      <Component Id="WinDivert" Guid="2D6F8A1B-4C3E-4F5A-9B7D-6E0C1A2B3F45" Win64="yes">
+        <File Id="WinDivertDll" Source="$(var.WinDivertDir)\WinDivert.dll" KeyPath="yes" />
+        <File Id="WinDivertSys" Source="$(var.WinDivertDir)\WinDivert64.sys" />
+        <File Id="WinDivertLicense" Source="$(var.WinDivertDir)\LICENSE-WinDivert.txt" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="ThemesFolder">
+      <Component Id="Themes" Guid="5B7D9E1F-3A2C-4D6E-8F01-9A2B3C4D5E63" Win64="yes">
+        <File Id="ThemeJson" Source="$(var.Root)\themes\halo.json" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="ProgramMenuFolder">
+      <Component Id="StartMenuShortcut" Guid="C4E2A1B9-7D3F-4A5C-8E6B-1F2D3C4B5A94">
+        <Shortcut Id="HaloShortcut" Name="Halo" Description="Notch overlay and utilities"
+                  Target="[INSTALLFOLDER]halo.exe" WorkingDirectory="INSTALLFOLDER" Icon="HaloIcon" />
+        <RegistryValue Root="HKCU" Key="Software\Halo" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+        <!-- On uninstall, remove per-user integrations Halo may have created for this user. -->
+        <RemoveRegistryValue Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Run" Name="Halo" />
+        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\SystemFileAssociations\.mp3\shell\HaloPlay" Action="removeOnUninstall" />
+        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\SystemFileAssociations\.flac\shell\HaloPlay" Action="removeOnUninstall" />
+        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\SystemFileAssociations\.wav\shell\HaloPlay" Action="removeOnUninstall" />
+        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\SystemFileAssociations\.ogg\shell\HaloPlay" Action="removeOnUninstall" />
+        <RemoveRegistryKey Root="HKCU" Key="Software\Classes\SystemFileAssociations\.m4a\shell\HaloPlay" Action="removeOnUninstall" />
+        <RemoveRegistryKey Root="HKCU" Key="Software\Halo" Action="removeOnUninstall" />
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="Main" Title="Halo" Level="1">
+      <ComponentRef Id="HaloExe" />
+      <ComponentRef Id="Licenses" />
+      <ComponentRef Id="WinDivert" />
+      <ComponentRef Id="Themes" />
+      <ComponentRef Id="StartMenuShortcut" />
+    </Feature>
+
+    <!-- Launch Halo when the installer finishes (checkbox, on by default). -->
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Halo" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <Property Id="WixShellExecTarget" Value="[#HaloExeFile]" />
+    <CustomAction Id="LaunchHalo" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+
+    <!-- Uninstall: remove the elevated sign-in task Halo creates (Launch at startup). -->
+    <CustomAction Id="RemoveStartupTask_Cmd" Property="RemoveStartupTask" Value="&quot;[System64Folder]schtasks.exe&quot; /Delete /TN Halo /F" />
+    <CustomAction Id="RemoveStartupTask" BinaryKey="WixCA" DllEntry="WixQuietExec64" Execute="deferred" Return="ignore" Impersonate="no" />
+    <InstallExecuteSequence>
+      <Custom Action="RemoveStartupTask_Cmd" Before="RemoveStartupTask">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
+      <Custom Action="RemoveStartupTask" Before="RemoveFiles">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
+    </InstallExecuteSequence>
+
+    <UI>
+      <UIRef Id="WixUI_Minimal" />
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchHalo">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+    </UI>
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.Root)\wix\license.rtf" />
+  </Product>
+</Wix>

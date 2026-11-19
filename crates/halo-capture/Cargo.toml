@@ -1,0 +1,25 @@
+[package]
+name = "halo-capture"
+description = "Halo capture modules: screenshot (M12), screen recording with audio (M13), audio recorder (M14)."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+halo-core = { workspace = true }
+halo-platform = { workspace = true }
+anyhow = { workspace = true }
+log = { workspace = true }
+image = { version = "0.25.10", default-features = false, features = ["png"] }
+arboard = "3.7.0"
+cpal = "0.18.2"
+hound = "3.5.1"
+flacenc = "0.5.1"
+chrono = { workspace = true }
+
+[target.'cfg(windows)'.dependencies]
+windows = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3.27.0"

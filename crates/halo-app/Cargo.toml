@@ -1,0 +1,33 @@
+[package]
+name = "halo-app"
+description = "Halo — suite d'utilitaires Windows (binaire)."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "halo"
+path = "src/main.rs"
+
+[dependencies]
+halo-ui = { workspace = true, features = ["gpui"] }
+halo-core = { workspace = true }
+halo-platform = { workspace = true }
+halo-modules = { workspace = true }
+halo-capture = { workspace = true }
+halo-secure = { workspace = true }
+gpui-kit = { workspace = true }
+raw-window-handle = { workspace = true }
+tray-icon = { workspace = true }
+global-hotkey = { workspace = true }
+anyhow = { workspace = true }
+log = { workspace = true }
+env_logger = { workspace = true }
+chrono = { workspace = true }
+chrono-tz = "0.10"
+arboard = "3.7.0"
+
+[build-dependencies]
+embed-resource = "3.0.12"
